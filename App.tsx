@@ -1,20 +1,48 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import {
+	TransitionPresets,
+	createStackNavigator,
+} from '@react-navigation/stack';
+import { loadAsync } from 'expo-font';
+import { hideAsync, preventAutoHideAsync } from 'expo-splash-screen';
+import { useEffect, useState } from 'react';
+import HomeScreen from './screens/home-screen';
+import NextScreen from './screens/next-screen';
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+	const Stack = createStackNavigator();
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+	const [fontsLoaded, setFontsLoaded] = useState(false);
+
+	useEffect(() => {
+		preventAutoHideAsync();
+		loadFonts();
+	}, []);
+
+	const loadFonts = async () => {
+		await loadAsync({
+			DMSans: require('./assets/fonts/DMSans-Regular.ttf'),
+		});
+		setFontsLoaded(true);
+		hideAsync();
+	};
+
+	if (!fontsLoaded) {
+		return null;
+	}
+
+	return (
+		<NavigationContainer>
+			<Stack.Navigator
+				screenOptions={{
+					headerShown: false,
+					gestureEnabled: true,
+					cardOverlayEnabled: true,
+					...TransitionPresets.ModalSlideFromBottomIOS,
+				}}>
+				<Stack.Screen name='Home' component={HomeScreen} />
+				<Stack.Screen name='Next' component={NextScreen} />
+			</Stack.Navigator>
+		</NavigationContainer>
+	);
+}
